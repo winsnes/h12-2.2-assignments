@@ -6,7 +6,7 @@ Tema 17 - Økt 6 - Ruby Lekse
 - **Antall oppgaver:** 22
 - **Antall svar påkrevd:** 17
 
-**Skriv inn svar på oppgavene i en tekstfil med navn homework_01.txt og last opp denne på It's Learning**
+**Skriv inn svar på oppgavene i en tekstfil med navn homework_02.txt og last opp denne på It's Learning**
 
 Linjer som starter med > indikerer kommandoer som skal skrives inn i irb konsollen
 (Ikke ta med hakeparantesen)
