@@ -8,9 +8,6 @@ Tema 17 - Økt 6 - Ruby Lekse
 
 **Skriv inn svar på oppgavene i en tekstfil med navn homework_02.txt og last opp denne på It's Learning**
 
-Linjer som starter med > indikerer kommandoer som skal skrives inn i irb konsollen
-(Ikke ta med hakeparantesen)
-
 ## 1.0 Syntaks
 
 *Kodelinejene i oppgavene nedenfor er skrevet med JavaScript. Skriv dem om til det tilsvarende skrevet med Ruby.*
@@ -35,21 +32,21 @@ Linjer som starter med > indikerer kommandoer som skal skrives inn i irb konsoll
 
 2.1.1 Hva blir resultatet av denne sammenligningen?
 
-    > 350.00 == 350
+    350.00 == 350
 
 2.1.2 Hva blir resultatet av følgende?
 
-    > (350 == "350").class
+    (350 == "350").class
 
 2.1.3 Hva blir da resultatet av følgende?
 
-    > (!(350 == "350")).class
+    (!(350 == "350")).class
 
 ### 2.2 Number
 
 2.2.1 Endre følgende linje slik at resultatet blir Float
 
-    > (250 + 50012).class
+    (250 + 50012).class
 
 2.2.2 Hva er forskjellen på Fixnum og Bignum?
 
@@ -63,18 +60,18 @@ Linjer som starter med > indikerer kommandoer som skal skrives inn i irb konsoll
 
 2.3.1 Fiks problemet med følgende String
 
-    > my_string = 'some random letters'
-    > 'This is just #{my_string} written out in irb.'
+    my_string = 'some random letters'
+    'This is just #{my_string} written out in irb.'
 
 2.3.2 Skriv ut følgende String slik at det kun er første bokstaven som er stor
 
-    > some_string = "this is just A REALLY NOISY STRING"
+    some_string = "this is just A REALLY NOISY STRING"
 
 ### 2.4 Array
 
 Array-oppgavene tar alle utgangspunkt i følgende Array
 
-    > my_array = [ 5, 9, 12, 36, "dog", "cat", false ]
+    my_array = [ 5, 9, 12, 36, "dog", "cat", false ]
 
 2.4.1 Skriv kommandoen for at du skal få skrevet ut "dog"
 
@@ -88,7 +85,7 @@ Array-oppgavene tar alle utgangspunkt i følgende Array
 
 Hash-oppgavene tar alle utgangspunkt i følgende Hash
 
-    > my_hash = {
+    my_hash = {
         turtles:  12,
         giraffes: 7,
         baboons:  3
@@ -106,12 +103,12 @@ Hash-oppgavene tar alle utgangspunkt i følgende Hash
 
 3.2 Hva skjer når du kjører følgende kode? Hvorfor?
 
-    > def silly_function( a, b, c, d ) {
+    def silly_function( a, b, c, d ) {
         sum = a + b + c + d
         product = a * b * c * d
         something_else = 7
     }
 
-    > silly_function( 150, 9, 123, 65 )
+    silly_function( 150, 9, 123, 65 )
 
 3.3 Skriv en funksjon som tar i mot fem tall, legger sammen de to første, og returnerer det siste
