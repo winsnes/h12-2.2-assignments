@@ -525,3 +525,216 @@ Attributtene created_at og updated_at kommer fra t.timestamps i migrasjonen
 Attributten id kommer fra Rails og er satt til å automatisk stige for hvert objekt
 
 Fjern nå det vi la til i filen slik at den er tilbake til sin originale form
+
+#### New / Create
+
+For å opprette et nytt objekt så trenger vi to metoder i controlleren:
+
+- new
+- create
+
+New henviser til siden hvor HTML form-elementene vises
+Create henviser til adressen som mottar informasjonen fra New sine form-elementer og oppretter det faktiske objektet
+
+La oss starte med view filen for clients#new
+
+    app/views/clients/new.html.erb
+
+Her var det ikke stort
+
+Det er fordi både clients#new og clients#edit deler samme form-elementene
+Når du skal opprette en kunde så har du de samme feltene som når du oppdaterer den
+
+Dette vises ved at vi ser følgende:
+
+```erb
+<%= render 'form' %>
+```
+
+Dette henviser til en "partial"
+Partials har filnavn som starter med en underscore ("_")
+
+Vi kan derfor også åpne app/views/clients/_form.html.erb
+
+Her inne finner vi selve form-strukturen
+
+Her er det en hel del Ruby kode, og relativt lite ren HTML
+Det er fordi vi overlater til Rails å bygge store deler av vårt HTML form
+
+Funksjonaliteten vi bruker til dette kalles en "form builder"
+
+Vi kan ignorere linjene 2-12 for nå og fokusere på hovedstrukturen
+
+Ved å midlertidig fjerne disse linjene så står vi igjen med 13 korte linjer, og en litt jevnere fordeling av Ruby- og HTML-kode
+
+Først kan vi observere at vi jobber med en blokk med kode
+
+```erb
+<%= form_for(@client) do |f| %>
+<% end %>
+```
+
+Dette er koden som bygger selve form elementet med sin action og method attributt
+
+Inne i denne blokken bygger vi enkelt opp label og text_field for hver verdi vi skal kunne redigere
+
+```erb
+<%= f.label :name %>
+<%= f.text_field :name %>
+```
+
+Og til slutt en knapp for å sende inn det utfylte skjemaet
+
+```erb
+<%= f.submit %>
+```
+
+Det er verdt å merke seg at vi ikke har noen felter for å endre ID'en til objektet
+Dette overlater vi helt til Rails
+
+Grunnen til at vi kan ha samme blokken med HTML form for både new og edit er at Rails vet forskjell på et nytt objekt og et eksisterende
+Avhengig av om objektet eksisterer eller ikke, så sender HTML form'en nettleseren videre til enten clients#create eller clients#update i controlleren
+
+Denne gangen skal vi til clients#create
+
+Her inne ser vi at det opprettes et nytt objekt av klassen Client
+
+```ruby
+@client = Client.new(client_params)
+```
+
+Metoden .new tar i mot ett argument
+Men hvor kommer dette argumentet fra?
+
+Vi så tidligere at vi hadde en params[:id] som tok ID'en til et objekt fra URL'en
+
+Om vi ser i bunnen av filen, så finner vi en privat metode som heter client_params
+
+```ruby
+def client_params
+  params.require(:client).permit(:name, :website)
+end
+```
+
+Dette er en metode som begrenser hvilke attributter vi har mulighet for å sende med i et form
+Vi ønsket bl.a. ikke å kunne oppdatere objektets ID, så det er ikke med her
+Både created_at og updated_at vedlikeholdes også av Rails, så det er ikke relevant å ha med
+
+Dermed har vi igjen de to verdiene som vi finner felter for i vår HTML form
+
+Koden videre kan være noe mer kompleks, men gir i utgangspunktet anledning til å besvare forespørsler både som HTML og JSON
+Disse er standardformatene i Rails 4.0
+
+Ellers består funksjonaliteten i hovedsak i at Rails forsøker å kjøre @client objektet sin .save metode
+Dersom det fungerer, så sendes brukeren tilbake til siden til @client med beskjeden "Client was successfully created."
+Om kunden ikke lar seg lagre av en eller annen grunn, så sendes brukeren tilbake til clients#new og får en ny anledning til å taste inn informasjonen
+
+JSON informasjonen kan vi ignorere inntil videre
+
+Før vi går videre, la oss hente tilbake koden vi fjernet fra toppen av clients#new view-filen
+
+I korte trekk er dette en kodeblokk for å bla gjennom eventuelle feilmeldinger brukeren har fått ved forsøk på å opprette objektet, og vise dem på siden
+
+#### Update
+
+Update fungerer veldig likt som clients#new med ett unntak
+
+```ruby
+before_action :set_client, only: [:show, :edit, :update, :destroy]
+```
+
+Dermed har vi et @client objekt som kan vises (i HTML form feltene) og oppdateres (i clients#update)
+
+#### Destroy
+
+Til slutt har vi metoden for å slette en kunde
+
+Vi har så langt hoppet glatt over et par linjer med kode i forskjellige views, så la oss addressere det først
+
+Linker på clients#index:
+
+- New Client
+- Show
+- Edit
+- Destroy
+
+Linker på clients#show:
+
+- Back
+
+Rails bruker i de fleste tilfeller såkalte "view helper" metoder for å bygge opp forskjellige HTML elementer
+
+Den vanligste helper-metoden vi har sett så langt er "link_to"
+Det er rett og slett en metode for å bygge en HTML link
+
+```ruby
+link_to 'Show', client
+```
+
+Metoden tar her i mot to argumenter:
+
+- Teksten på linken
+- hvor linken skal peke
+
+Ettersom Client er deklarert som en ressurs på roten av routes så kan den pekes til ved kun å peke til objektet
+
+```ruby
+link_to 'Edit', edit_client_path(client)
+```
+
+Her er informasjon om hvor linken skal peke mer utbygget
+
+Jukselappen her ligger et sted vi har vært før
+
+    rake routes
+
+Helt til høyre seg vi kolonnen Prefix
+Det er hvordan vi kan beskrive veien til den controller-action'en vi ønsker
+Derfor, når vi skal til clients#edit, så finner vi "edit_client" til venstre
+
+I tillegg til Prefix kolonnen så ser vi i URI Pattern følgende: "/clients/:id/edit(.:format)"
+Ettersom :id står i adressen, så er det også noe Rails trenger for å bygge riktig link
+Rails er også smart nok til at vi bare kan sende selve objektet, så lenge vi informerer om at vi ønsker å bygge en "path"
+
+Resultatet blir derfor følgende:
+
+```ruby
+edit_client_path(client)
+```
+
+Dette gjelder også når vi skal lage en ny kunde nederst op clients#index
+
+```ruby
+link_to 'New Client', new_client_path
+```
+
+Ved å sjekke "rake routes" så ser vi at det ikke er nødvendig å sende med noen id, og vi kan derfor bare kalle på "new_client_path"
+
+Men, tilbake til den metoden vi skulle se nærmere på
+
+Destroy
+
+Når vi ser på linken til clients#destroy, så er den ganske anderledes
+
+```ruby
+link_to 'Destroy', client, method: :delete, data: { confirm: 'Are you sure?' }
+```
+
+Om vi fjerner alt etter de to første argumentene, så er det i utgangspunktet bare en link for å vise en kunde
+
+Ettersom HTTP ikke har en skikkelig definert DELETE metode, så "faker" Rails det ved å inkludere litt JavaScript
+Egentlig inkluderer dette at Rails legger til en data-attributt å informere om den ønskede HTTP metoden, og sender deretter forespørselen som en POST
+
+Det er dette "method: :delete" gjør
+
+Til slutt legger vi til en data-attributt som JavaScript bruker for å utløse en bekreftelse fra brukeren
+
+Rails legger også til en "rel='nofollow'" på linker med "method: :delete" for å unngå at roboter skal slette innholdet ditt når siden crawles
+
+## Recap
+
+Som vi har sett så gjør "rails generate scaffold" ganske mye for oss
+Men det oppretter også en del ekstra kode som vi egentlig ikke trenger
+Vi har heller ikke berørt en del av den allerede eksisterende koden som omfavner det "rails generate scaffold" laget for oss
+
+Dette skal vi se på neste gang
