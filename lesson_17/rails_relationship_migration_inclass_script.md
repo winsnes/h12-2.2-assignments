@@ -486,3 +486,146 @@ Men først må vi committe vårt arbeid
 ```
 git commit -am 'Added CarrierWave to enable uploading of image files'
 ```
+
+## CarrierWave - Part 2
+
+Når vi bruker CarrierWave så får vi tilgang til en del ekstra funksjonalitet
+
+### CarrierWave - Filtyper
+
+En av disse er å begrense hva slags filtyper vi tillater å få lastet opp
+
+Det er f.eks. ikke praktisk at brukeren laster opp .pdf dokumenter når det skal vises som bilder i applikasjonen
+
+Dette kan vi begrense fra vår uploader fil **app/uploaders/file_uploader.rb**
+
+En enkel måte å gjøre dette på er å fjerne kommenteringen av linje 41-43
+
+```ruby
+def extension_white_list
+  %w(jpg jpeg gif png)
+end
+```
+
+På den måten har vi kun tillatt disse fire filtypene
+
+### CarrierWave - Bildeversjoner
+
+CarrierWave har en innebygget funksjonalitet som kan brukes for å lage forskjellige versjoner av bildene som lastes opp
+
+Dersom du i ditt design har satt av plass til bilder som er 800x600, så er det ikke nødvendig at en besøkende skal laste ned bilder som er 3200x2400
+
+Eller om du har et ønske om å ha thumbnails av bildene i et galleri, og så muligheten for å klikke på disse for å se fullversjonen
+
+For å lage forskjellige versjoner av bildene så kan CarrierWave kommunisere med et annet verktøy som kan installeres på maskinen
+
+Dette verktøyet kalles MiniMagick
+
+Minimagick er en rubygem, men den krever at du allerede har installert et annet program på maskinen
+
+På en Mac så kan dette gjøres relativt enkelt, forutsett at maskinen har installert **Homebrew**
+
+(Maskinene som har kjørt backend-devstack scriptet for dette kurset har allerede installert Homebrew)
+
+**OM DU IKKE HAR HOMEBREW INSTALLERT SÅ VIL DENNE FREMGANGSMETODEN IKKE FUNGERE!**
+
+Kommandoen for å installere dette verktøyet er da følgende:
+
+```
+brew install imagemagick
+```
+
+Etter at denne kommandoen har kjørt ferdig, så kan du legge til en ny gem i din Gemfile:
+
+```ruby
+  gem 'mini_magick'
+```
+
+Installer deretter gem'en med Bundler
+
+```
+bundle install
+```
+
+Fjern så utkommenteringen fra følgende linje i **file_uploader.rb**:
+
+```ruby
+include CarrierWave::MiniMagick
+```
+
+Dermed får vi tilgang til å lage forskjellige versjoner av bildene vi laster opp
+
+Legg til følgende linjer i **file_uploader.rb**:
+
+```ruby
+version :thumb do
+  process :resize_to_fill => [200,200]
+end
+
+version :large do
+  process :resize_to_fit => [800,600]
+end
+
+version :medium do
+  process :resize_to_fit => [1920,1080]
+end
+```
+
+Når vi nå laster opp bilder, så får vi automatisk opprettet disse tre versjonene av bildet
+
+Vi kan da i våre view-filer instruere hvilken versjon som skal brukes
+
+Åpne først **app/views/projects/show.html.erb**
+
+Endre følgende linje:
+
+```erb
+<%= image_tag image.file.url %>
+```
+
+Til følgende:
+
+```erb
+<%= image_tag image.file.thumb.url %>
+```
+
+Endre også følgende linje i **app/views/images/edit.html.erb**:
+
+```erb
+<%= image_tag @image.file.url %>
+```
+
+Til følgende:
+
+```erb
+<%= image_tag @image.file.thumb.url %>
+```
+
+Disse nye versjonene av bildene eksisterer kun for de bildene som har blitt lastet opp siden vi la til endringene i vår **file_uploader.rb**
+
+For å påføre endringene på eksisterende bilder så kan vi gjøre dette fra rails console med følgende kommando:
+
+```ruby
+Image.all.each{ |img| img.file.recreate_versions! if img.file? }
+```
+
+Nå kan vi committe funksjonaliteten vår igjen
+
+Men først kan vi se hvor filene lagrer seg
+
+Åpne mappen **public/uploads/image/file/**
+
+Her inne ligger alle bildene i alle tilgjengelige versjoner
+
+Dette trenger vi ikke å ha med oss inn i vårt Git repository
+
+Legg derfor til følgende linje i din **.gitignore** fil
+
+```
+# Ignore uploaded images
+/public/uploads
+```
+
+```
+git commit -Am 'Added CarrierWave versions and filetype limitations'
+```
