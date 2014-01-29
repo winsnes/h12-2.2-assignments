@@ -1,5 +1,5 @@
-Tema 17 - Økt 6 - Database / Rails Lekse
-================================================
+Tema 17 - Økt 14 - Database / Rails Lekse
+=========================================
 
 ## Informasjon om oppgavesett og krav
 

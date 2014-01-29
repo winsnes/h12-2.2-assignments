@@ -1,4 +1,4 @@
-Tema 17 - Økt 6 - Ruby Class / Inheritance Lekse
+Tema 17 - Økt 7 - Ruby Class / Inheritance Lekse
 ================================================
 
 ## Informasjon om oppgavesett og krav
